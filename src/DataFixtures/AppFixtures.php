@@ -32,6 +32,8 @@ class AppFixtures extends Fixture
         $endDate = $startDate->add(new \DateInterval('P4M'));
         $schoolYear->setEndDate($endDate);
 
+        $manager->persist($schoolYear);
+
         $user = new User();
         $user->setEmail($this->faker->email());
         // hashage du mot de passe
@@ -42,13 +44,13 @@ class AppFixtures extends Fixture
         $manager->persist($user);
 
         $student = new Student();
-        $student->setFirstaname($this->faker->firstname());
+        $student->setFirstname($this->faker->firstname());
         $student->setLastname($this->faker->lastname());
         $student->setPhone($this->faker->PhoneNumber());
-        $student_>setSchoolYear($schoolYear);
+        $student->setSchoolYear($schoolYear);
         $student->setUser($user);
 
-        $manager->persist($user);
+        $manager->persist($student);
 
         $manager->flush();
     }
