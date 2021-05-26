@@ -22,7 +22,14 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager)
     {
+        $schoolYears = $this->loadSchoolYears($manager);
+        $students = $this->loadStudents($manager, $schoolYears);
 
+        $manager->flush();
+    }
+
+    public function loadSchoolYears(ObjectManager $manager)
+    {
         $schoolYear = new SchoolYear();
         $schoolYear->setName($this->faker->name());
         $schoolYear->setStartDate($this->faker->dateTimeThisDecade());
@@ -33,6 +40,13 @@ class AppFixtures extends Fixture
         $schoolYear->setEndDate($endDate);
 
         $manager->persist($schoolYear);
+
+        return [$schoolYear];
+    }
+
+    public function loadStudents(ObjectManager $manager, array $schoolYears)
+    {
+        $schoolYear = $schoolYears[0];
 
         $user = new User();
         $user->setEmail($this->faker->email());
@@ -52,6 +66,6 @@ class AppFixtures extends Fixture
 
         $manager->persist($student);
 
-        $manager->flush();
+        return [$student];
     }
 }
