@@ -115,3 +115,17 @@ Structure par défaut proposée par Symfony
 - roles : text- creationDate : timestamp, default now
 - modificationDate : timestamp, nullable, default now
 - deletionDate : timestamp, nullable, default now
+
+### Dépendances
+
+- Client
+   - User
+- Project
+- SchoolYear
+- Student
+  - SchoolYear
+  - User
+- Tag
+- Teacher
+  - User
+- User
