@@ -2,11 +2,13 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Project;
 use App\Entity\Student;
 use App\Entity\User;
 use App\Entity\SchoolYear;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Faker\Factory as FakerFactory;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
@@ -17,39 +19,101 @@ class AppFixtures extends Fixture
     public function __construct(UserPasswordEncoderInterface $encoder)
     {
         $this->encoder = $encoder;
-        $this->faker = \Faker\Factory::create('fr_FR');
+        $this->faker = FakerFactory::create('fr_FR');
     }
 
     public function load(ObjectManager $manager)
     {
-        $schoolYears = $this->loadSchoolYears($manager);
-        $students = $this->loadStudents($manager, $schoolYears);
+        $schoolYearCount = 10;
+        $studentsPerSchoolYear = 24;
+        $studentsCount = $studentsPerSchoolYear * $schoolYearCount;
+        $studentsPerProject = 3;
+
+        if ($studentsCount % $studentsPerProject == 0) {
+            // valeur plancher
+            $projectsCount = (int) ($studentsCount / $studentsPerProject);
+        } else {
+            // valeur plafond
+            $projectsCount = (int) ($studentsCount / $studentsPerProject) + 1;
+        }
+
+        $this->loadAdmins($manager, 3);
+        $schoolYears = $this->loadSchoolYears($manager, $schoolYearCount);
+        $students = $this->loadStudents($manager, $schoolYears, $studentsPerSchoolYear, $studentsCount);
+        $projects = $this->loadProjects($manager, $students, $studentsPerProject, $projectsCount);
 
         $manager->flush();
     }
 
-    public function loadSchoolYears(ObjectManager $manager)
+    public function loadAdmins(ObjectManager $manager, int $count)
     {
+        $user = new User();
+        $user->setEmail('admin@example.com');
+        // hashage du mot de passe
+        $password = $this->encoder->encodePassword($user, '123');
+        $user->setPassword($password);
+        $user->setRoles(['ROLE_ADMIN']);
+
+        $manager->persist($user);
+
+        for ($i = 1; $i < $count; $i++) {
+            $user = new User();
+            $user->setEmail($this->faker->email());
+            // hashage du mot de passe
+            $password = $this->encoder->encodePassword($user, '123');
+            $user->setPassword($password);
+            $user->setRoles(['ROLE_ADMIN']);
+
+            $manager->persist($user);
+        }
+    }
+
+    public function loadSchoolYears(ObjectManager $manager, int $count)
+    {
+        $schoolYears = [];
+
         $schoolYear = new SchoolYear();
-        $schoolYear->setName($this->faker->name());
-        $schoolYear->setStartDate($this->faker->dateTimeThisDecade());
+        $schoolYear->setName('Lorem ipsum');
+        $schoolYear->setStartDate(\DateTime::createFromFormat('Y-m-d H:i:s', '2010-01-01 00:00:00'));
         // récupération de la date de début
         $startDate = $schoolYear->getStartDate();
+        // création de la date de fin à  partir de la date de début
+        $endDate = \DateTime::createFromFormat('Y-m-d H:i:s', $startDate->format('Y-m-d H:i:s'));
         // ajout d'un interval de 4 mois à la date de début
-        $endDate = $startDate->add(new \DateInterval('P4M'));
+        $endDate->add(new \DateInterval('P4M'));
         $schoolYear->setEndDate($endDate);
 
         $manager->persist($schoolYear);
+        $schoolYears[] = $schoolYear;
 
-        return [$schoolYear];
+        for ($i = 1; $i < $count; $i++) {
+            $schoolYear = new SchoolYear();
+            $schoolYear->setName($this->faker->name());
+            $schoolYear->setStartDate($this->faker->dateTimeThisDecade());
+            // récupération de la date de début
+            $startDate = $schoolYear->getStartDate();
+            // création de la date de fin à  partir de la date de début
+            $endDate = \DateTime::createFromFormat('Y-m-d H:i:s', $startDate->format('Y-m-d H:i:s'));
+            // ajout d'un interval de 4 mois à la date de début
+            $endDate->add(new \DateInterval('P4M'));
+            $schoolYear->setEndDate($endDate);
+
+            $manager->persist($schoolYear);
+            $schoolYears[] = $schoolYear;
+        }
+
+        return $schoolYears;
     }
 
-    public function loadStudents(ObjectManager $manager, array $schoolYears)
+    public function loadStudents(ObjectManager $manager, array $schoolYears, int $studentsPerSchoolYear, int $count)
     {
-        $schoolYear = $schoolYears[0];
+        $students = [];
+        $schoolYearIndex = 0;
+
+        $schoolYear = $schoolYears[$schoolYearIndex];
 
         $user = new User();
-        $user->setEmail($this->faker->email());
+        $user->setEmail('student@example.com');
         // hashage du mot de passe
         $password = $this->encoder->encodePassword($user, '123');
         $user->setPassword($password);
@@ -58,14 +122,90 @@ class AppFixtures extends Fixture
         $manager->persist($user);
 
         $student = new Student();
-        $student->setFirstname($this->faker->firstname());
-        $student->setLastname($this->faker->lastname());
-        $student->setPhone($this->faker->PhoneNumber());
+        $student->setFirstname('Student');
+        $student->setLastname('Student');
+        $student->setPhone('0612345678');
         $student->setSchoolYear($schoolYear);
         $student->setUser($user);
 
         $manager->persist($student);
+        $students[] = $student;
 
-        return [$student];
+        for ($i = 1; $i <= $count; $i++) {
+            $schoolYear = $schoolYears[$schoolYearIndex];
+
+            if ($i % $studentsPerSchoolYear == 0) {
+                $schoolYearIndex++;
+            }
+
+            $user = new User();
+            $user->setEmail($this->faker->email());
+            // hashage du mot de passe
+            $password = $this->encoder->encodePassword($user, '123');
+            $user->setPassword($password);
+            $user->setRoles(['ROLE_STUDENT']);
+
+            $manager->persist($user);
+
+            $student = new Student();
+            $student->setFirstname($this->faker->firstname());
+            $student->setLastname($this->faker->lastname());
+            $student->setPhone($this->faker->phoneNumber());
+            $student->setSchoolYear($schoolYear);
+            $student->setUser($user);
+
+            $manager->persist($student);
+            $students[] = $student;
+        }
+
+        return $students;
+    }
+
+    public function loadProjects(ObjectManager $manager, array $students, int $studentsPerProject, int $count)
+    {
+        $studentIndex = 0;
+        $projects = [];
+
+        // création du premier projet avec des données en dur
+        $project = new Project();
+        $project->setName('Hackathon');
+
+        while (true) {
+            $student = $students[$studentIndex];
+            $project->addStudent($student);
+            
+            if (($studentIndex + 1) % $studentsPerProject == 0) {
+                $studentIndex++;
+                break;
+            }
+
+            $studentIndex++;
+        }
+
+        $manager->persist($project);
+        $projects[] = $project;
+
+        // création des projets suivants avec des données aléatoires
+        for ($i = 1; $i < $count; $i++) {
+            $project = new Project();
+            $project->setName($this->faker->sentence(2));
+
+            while (true) {
+                $student = $students[$studentIndex];
+                $project->addStudent($student);
+        
+                if (($studentIndex + 1) % $studentsPerProject == 0) {
+                    $studentIndex++;
+                    break;
+                }
+
+                $studentIndex++;
+            }
+        
+            $manager->persist($project);
+            $projects[] = $project;
+        }
+
+        return $projects;
     }
 }

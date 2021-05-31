@@ -44,8 +44,8 @@ Cette classe représente un projet réalisé par des apprenants.
 
 - id : primary key
 - name : varchar 190
-- description : text
-- deadline : timestamp
+- description : text, nullable
+- deadline : timestamp, nullable
 - budget : int, nullable
 - creationDate : timestamp, default now
 - modificationDate : timestamp, nullable, default now
@@ -53,7 +53,7 @@ Cette classe représente un projet réalisé par des apprenants.
 
 - clients : many to many
 - students : many to many
-- teacher : many to one
+- teacher : many to one, nullable
 - tags : many to many
 
 ### Client
@@ -69,7 +69,7 @@ Cette classe représente un commanditaire d'un projet.
 - deletionDate : timestamp, nullable, default now
 
 - projects : many to many
-- user : one to one
+- user : one to one, uni-directional
 
 ### Tag
 
