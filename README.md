@@ -76,7 +76,64 @@ Cette classe représente un commanditaire d'un projet.
 Cette classe représente une étiquette que l'on pourra associer à un apprenant, un formateur ou un projet.
 
 - id : primary key
-- name : varchar 190, unique
+- name : varchar 1ECF - Part 1 - Projet bibliothèque - BDD
+Daishi Kaszer
+•
+1 juin
+100 points
+# ECF - Part 1 - Projet bibliothèque - BDD
+
+Le but de cet exercice est de maîtriser la création d'une base de données (BDD) qui sera utilisée dans une application web dynamique.
+
+## Cahier des charges
+
+Vous devez créer une BDD qui implémente la structure et les données indiquées plus bas.
+
+Attention : l'accès à la BDD doit être limité à un unique utilisateur ayant le minimum possible de privilèges.
+
+Pour créer la BDD, vous avez le choix des armes : SQL vanila, PHPMyAdmin, Doctrine (Symfony), Eloquent (Laravel), etc.
+Mais vous êtes vivement encouragé à utiliser Symfony.
+
+## Livrables
+
+La BDD et les données doivent être livrées sous la forme d'un repository git en ligne sur un site comme github, gitlab ou autre.
+
+Vous avez deux options : soit vous créez la BDD en utilisant un framework PHP soit vous la créez sans utiliser de framework PHP.
+
+En fonction de votre choix, le repository doit contenir les fichiers suivants :
+
+1. avec framework PHP
+  - un fichier `README.md` (voir ci-dessous)
+  - un ou des fichiers PHP contenant le code de création de la BDD
+  - un ou des fichiers PHP contenant le code de création des données indispensables
+  - un ou des fichiers PHP contenant le code de création des données de test
+2. sans framework PHP
+  - un fichier `README.md` (voir ci-dessous)
+  - un fichier SQL contenant le code de création de l'utilisateur de la BDD
+  - un fichier SQL contenant le code de création de la BDD
+  - un fichier SQL contenant les données indispensables
+  - un fichier SQL contenant les données de test
+
+Dans tous les cas, le fichier `README.md` doit indiquer la procédure à suivre pour :
+
+- si nécessaire, installer les dépendances (avec composer par exemple)
+- créer l'utilisateur de la BDD
+- créer la BDD
+- créer la structure de la BDD
+- injecter les données indispensables
+- injecter les données de test
+
+Optionnellement, vous pouvez aussi fournir un script Bash qui réalise chacune de ces opérations.
+
+## Prérequis
+
+- MariaDB
+- PHPMyAdmin
+
+Si vous utilisez Symfony :
+
+- PHP 7.x ou 8.x
+- composer90, unique
 - description : text
 - creationDate : timestamp, default now
 - modificationDate : timestamp, nullable, default now
@@ -94,7 +151,7 @@ Cette classe représente un formateur.
 - firstname : varchar 190
 - lastname : varchar 190
 - phone : varchar 190, nullable, unique
-- creationDate : timestamp, default now
+- creationDate : timestamp, de:fault now
 - modificationDate : timestamp, nullable, default now
 - deletionDate : timestamp, nullable, default now
 
