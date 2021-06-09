@@ -260,7 +260,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
 
         // création du profil teacher avec des données constantes
         $teacher = new Teacher();
-        oject = array_shift($projects);
+        $firstProject = array_shift($projects);
         // association du teacher et d'un projet constant
         $teacher->addProject($firstProject);
 
